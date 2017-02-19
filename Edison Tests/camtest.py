@@ -42,14 +42,19 @@ def waitForCamera():
                     print "Waiting for camera..."
                 time.sleep(1.0)
 def runTesseract(inputPic):
-    image_file = inputPic
-    im = Image.open(image_file)# opening image file
+    image_file = cv2.imread(inputPic)
+    orig = image_file.copy()
+    orig = cv2.fastNlMeansDenoisingColored(orig,None,10,10,7,21)
+    gray = cv2.cvtColor(orig, cv2.COLOR_BGR2GRAY)
+    gray = cv2.fastNlMeansDenoising(gray,None,10,7,21)
+    cv2.imwrite("dst.jpg",gray)
+    tess_file = 'dst.jpg'
+    im = Image.open(tess_file) #opening image file
     im = im.save('test.tif')
-    im = Image.open('test.tif')# change image format
+    im = Image.open('test.tif') #change image format
     im.load()
-    im.split()# arduino = serial.Serial('/dev/tty.usbmodemFA131', 9600, timeout = 2)# open connection to serial port
-    time.sleep(2)
-    text = pytesseract.image_to_string(im)# run Tesseract library to convert image to string# arduino.write(text)
+    im.split()
+    text = pytesseract.image_to_string(im)
     print "=====output=======\n"
     print text
 ###############################################################################
