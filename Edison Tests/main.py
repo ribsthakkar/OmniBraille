@@ -17,11 +17,6 @@ WEBCAM_MAKE = 'Logitech'
 CAMERA_WIDTH = 1280
 CAMERA_HEIGHT = 720
 
-# Exit on a ctrl+c event
-def signalHandler(signal, frame):
-    if VERBOSE:
-        print "Exiting..."
-    sys.exit(0)
 #Arrays of Braille Letters
 letA = [1, 0, 0, 0, 0, 0]
 letB = [1, 1, 0, 0, 0, 0]
@@ -57,7 +52,11 @@ letSemi = [0, 1, 1, 0, 0, 0]
 letExec = [0, 1, 1, 0, 1, 0]
 reset = [1, 1, 1, 1, 1, 1]
 
-
+# Exit on a ctrl+c event
+def signalHandler(signal, frame):
+    if VERBOSE:
+        print "Exiting..."
+    sys.exit(0)
 # Wait for the webcam to show up in the USB devices list
 def waitForCamera():
         while True:
@@ -218,7 +217,6 @@ def outputLetter(inputText):
 ###############################################################################
 # Main
 ###############################################################################
-
 def main():
 
     # Register Ctrl+C
