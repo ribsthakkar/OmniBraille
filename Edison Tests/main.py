@@ -7,9 +7,11 @@ import signal
 import sys
 import time
 import cv2
-from PIL import Image
+from PIL import Image, ImageFilter
 import pytesseract
 import mraa
+import numpy as np
+from matplotlib import pyplot as plt
 # Webcam manufacturer
 WEBCAM_MAKE = 'Logitech'
 
@@ -76,6 +78,31 @@ def waitForCamera():
                 if VERBOSE:
                     print "Waiting for camera..."
                 time.sleep(1.0)
+#calculating skew angle
+def compute_skew(image):
+    # image = cv2.bitwise_not(image)
+    height, width = image.shape
+
+    edges = cv2.Canny(image, 150, 200, 3, 5)
+    lines = cv2.HoughLinesP(edges, 1, np.pi / 180, 100, minLineLength=width / 2.0, maxLineGap=20)
+    angle = 0.0
+    number_of_line = lines.size
+    for x1, y1, x2, y2 in lines[0]:
+        if x1 != x2:
+            angle += np.arctan(y2 - y1 / x2 - x1)
+    return angle / number_of_line
+#deskewing the image from calcualted angle
+def deskew(image, angle):
+    angle = np.math.degrees(angle)
+    # image = cv2.bitwise_not(image)
+    non_zero_pixels = cv2.findNonZero(image)
+    center, wh, theta = cv2.minAreaRect(non_zero_pixels)
+
+    root_mat = cv2.getRotationMatrix2D(center, angle, 1)
+    rows, cols = image.shape
+    rotated = cv2.warpAffine(image, root_mat, (cols, rows), flags=cv2.INTER_CUBIC)
+
+    return cv2.getRectSubPix(rotated, (cols, rows), center)
 #Executing the tesseract algorithm on image taken from camera
 def runTesseract(inputPic):
     image_file = cv2.imread(inputPic)
@@ -83,9 +110,11 @@ def runTesseract(inputPic):
     orig = cv2.fastNlMeansDenoisingColored(orig,None,10,10,7,21)
     gray = cv2.cvtColor(orig, cv2.COLOR_BGR2GRAY)
     gray = cv2.fastNlMeansDenoising(gray,None,10,7,21)
-    cv2.imwrite("dst.jpg",gray)
+    deskewed_image = deskew(gray, compute_skew(gray))
+    cv2.imwrite("dst.jpg",deskewed_image)
     tess_file = 'dst.jpg'
     im = Image.open(tess_file) #opening image file
+    im = im.filter(ImageFilter.SHARPEN)
     im = im.save('test.tif')
     im = Image.open('test.tif') #change image format
     im.load()
@@ -246,6 +275,6 @@ def main():
         # Show image window (if debugging)
         print "running tesseract..."
         ouptut = runTesseract(image)
-        ouptutLetter(output)
+        #ouptutLetter(output)
 if __name__ == "__main__":
     main()
