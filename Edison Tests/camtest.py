@@ -60,7 +60,6 @@ def runTesseract(inputPic):
 ###############################################################################
 # Main
 ###############################################################################
-
 def main():
 
     # Register Ctrl+C
@@ -70,7 +69,7 @@ def main():
     waitForCamera()
 
     # Initialize camera
-    cam = cv2.VideoCapture(0)
+    """cam = cv2.VideoCapture(0)
     cam.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH, CAMERA_WIDTH)
     cam.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT, CAMERA_HEIGHT)
     camWidth = cam.get(cv2.cv.CV_CAP_PROP_FRAME_WIDTH)
@@ -78,15 +77,24 @@ def main():
     if VERBOSE:
         print "Camera initialized: (" + str(camWidth) + ", " + \
             str(camHeight) + ")"
+            """
 
     # Main loop
     while True:
-
+        cam = cv2.VideoCapture(0)
+        cam.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH, CAMERA_WIDTH)
+        cam.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT, CAMERA_HEIGHT)
+        camWidth = cam.get(cv2.cv.CV_CAP_PROP_FRAME_WIDTH)
+        camHeight = cam.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT)
+        if VERBOSE:
+            print "Camera initialized: (" + str(camWidth) + ", " + \
+                str(camHeight) + ")  Image will be taken in 5 seconds"
         # Get image from camera
         time.sleep(5)
         ret_val, frame = cam.read()
         image = "testImage.jpg"
         cv2.imwrite(image,frame)
+        cam.release()
         # Show image window (if debugging)
         print "running tesseract..."
         runTesseract(image)

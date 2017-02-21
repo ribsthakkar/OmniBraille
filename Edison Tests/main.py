@@ -7,52 +7,17 @@ import signal
 import sys
 import time
 import cv2
-from PIL import Image, ImageFilter
+from PIL import Image#, ImageFilter
 import pytesseract
 import mraa
-import numpy as np
-from matplotlib import pyplot as plt
+#import numpy as np
+#from matplotlib import pyplot as plt
 # Webcam manufacturer
 WEBCAM_MAKE = 'Logitech'
 
 # Camera resolution
 CAMERA_WIDTH = 1280
 CAMERA_HEIGHT = 720
-
-#Arrays of Braille Letters
-letA = [1, 0, 0, 0, 0, 0]
-letB = [1, 1, 0, 0, 0, 0]
-letC = [1, 0, 0, 1, 0, 0]
-letD = [1, 0, 0, 1, 1, 0]
-letE = [1, 0, 0, 0, 1, 0]
-letF = [1, 1, 0, 1, 0, 0]
-letG = [1, 1, 0, 1, 1, 0]
-letH = [1, 1, 0, 0, 1, 0]
-letI = [0, 1, 0, 0, 1, 0]
-letJ = [0, 1, 0, 1, 1, 0]
-letK = [1, 0, 1, 0, 0, 0]
-letL = [1, 1, 1, 0, 0, 0]
-letM = [1, 0, 1, 1, 0, 0]
-letN = [1, 0, 1, 1, 1, 0]
-letO = [1, 0, 1, 0, 1, 0]
-letP = [1, 1, 1, 1, 0, 0]
-letQ = [1, 1, 1, 1, 1, 0]
-letR = [1, 1, 1, 0, 1, 0]
-letS = [0, 1, 1, 1, 0, 0]
-letT = [0, 1, 1, 1, 1, 0]
-letU = [1, 0, 1, 0, 0, 1]
-letV = [1, 1, 1, 0, 0, 1]
-letW = [0, 1, 0, 1, 1, 1]
-letX = [1, 0, 1, 1, 0, 1]
-letY = [1, 0, 1, 1, 1, 1]
-letZ = [1, 0, 1, 0, 1, 1]
-letPound = [0, 0, 1, 1, 1, 1]
-letPer = [0, 1, 0, 0, 1, 1]
-letComm = [0, 1, 0, 0, 0, 0]
-letQuest = [0, 1, 1, 0, 0, 1]
-letSemi = [0, 1, 1, 0, 0, 0]
-letExec = [0, 1, 1, 0, 1, 0]
-reset = [1, 1, 1, 1, 1, 1]
 
 # Exit on a ctrl+c event
 def signalHandler(signal, frame):
@@ -81,7 +46,7 @@ def waitForCamera():
 #calculating skew angle
 def compute_skew(image):
     # image = cv2.bitwise_not(image)
-    height, width = image.shape
+    nslice, height, width = image.shape
 
     edges = cv2.Canny(image, 150, 200, 3, 5)
     lines = cv2.HoughLinesP(edges, 1, np.pi / 180, 100, minLineLength=width / 2.0, maxLineGap=20)
@@ -107,18 +72,23 @@ def deskew(image, angle):
 def runTesseract(inputPic):
     image_file = cv2.imread(inputPic)
     orig = image_file.copy()
+    #print "deskewing image..."
+    #deskewed_image = deskew(orig, compute_skew(orig))
+    #print "removing image noise..."
+    print "denoising colored image"
     orig = cv2.fastNlMeansDenoisingColored(orig,None,10,10,7,21)
+    print "converting image to BW"
     gray = cv2.cvtColor(orig, cv2.COLOR_BGR2GRAY)
-    gray = cv2.fastNlMeansDenoising(gray,None,10,7,21)
-    deskewed_image = deskew(gray, compute_skew(gray))
-    cv2.imwrite("dst.jpg",deskewed_image)
+    print "denoising BW image"
+    gray = cv2.fastNlMeansDenoising(gray,None,3,7,21)
+    cv2.imwrite("dst.jpg",gray)
     tess_file = 'dst.jpg'
     im = Image.open(tess_file) #opening image file
-    im = im.filter(ImageFilter.SHARPEN)
     im = im.save('test.tif')
     im = Image.open('test.tif') #change image format
     im.load()
     im.split()
+    print "running tesseract..."
     text = pytesseract.image_to_string(im)
     print "=====output=======\n"
     print text
@@ -151,97 +121,97 @@ def outputLetter(inputText):
         print char1
         if (char1 == "A"
             or char1 == "a"):
-            setPin(letA)
+            setPin([1, 0, 0, 0, 0, 0])
         if (char1 == "B"
             or char1 == "b"):
-            setPin(letB)
+            setPin([1, 1, 0, 0, 0, 0])
         if (char1 == "C"
             or char1 == "c"):
-            setPin(letC)
+            setPin([1, 0, 0, 1, 0, 0])
         if (char1 == "D"
             or char1 == "d"):
-            setPin(letD)
+            setPin([1, 0, 0, 1, 1, 0])
         if (char1 == "E"
             or char1 == "e"):
-            setPin(letE)
+            setPin([1, 0, 0, 0, 1, 0])
         if (char1 == "F"
             or char1 == "f"):
-            setPin(letF)
+            setPin([1, 1, 0, 1, 0, 0])
         if (char1 == "G"
             or char1 == "g"):
-            setPin(letG)
+            setPin([1, 1, 0, 1, 1, 0])
         if (char1 == "H"
             or char1 == "h"):
-            setPin(letH)
+            setPin([1, 1, 0, 0, 1, 0])
         if (char1 == "I"
             or char1 == "i"):
-            setPin(letI)
+            setPin([0, 1, 0, 0, 1, 0])
         if (char1 == "J"
             or char1 == "j"):
-            setPin(letJ)
+            setPin([0, 1, 0, 1, 1, 0])
         if (char1 == "K"
             or char1 == "k"):
-            setPin(letK)
+            setPin([1, 0, 1, 0, 0, 0])
         if (char1 == "L"
             or char1 == "l"):
-            setPin(letL)
+            setPin([1, 1, 1, 0, 0, 0])
         if (char1 == "M"
             or char1 == "m"):
-            setPin(letM)
+            setPin([1, 0, 1, 1, 0, 0])
         if (char1 == "N"
             or char1 == "n"):
-            setPin(letN)
+            setPin([1, 0, 1, 1, 1, 0])
         if (char1 == "O"
             or char1 == "o"):
-            setPin(letO)
+            setPin([1, 0, 1, 0, 1, 0])
         if (char1 == "P"
             or char1 == "p"):
-            setPin(letP)
+            setPin([1, 1, 1, 1, 0, 0])
         if (char1 == "Q"
             or char1 == "q"):
-            setPin(letQ)
+            setPin([1, 1, 1, 1, 1, 0])
         if (char1 == "R"
             or char1 == "r"):
-            setPin(letR)
+            setPin([1, 1, 1, 0, 1, 0])
         if (char1 == "S"
             or char1 == "s"):
-            setPin(letS)
+            setPin([0, 1, 1, 1, 0, 0])
         if (char1 == "T"
             or char1 == "t"):
-            setPin(letT)
+            setPin([0, 1, 1, 1, 1, 0])
         if (char1 == "U"
             or char1 == "u"):
-            setPin(letU)
+            setPin([1, 0, 1, 0, 0, 1])
         if (char1 == "V"
             or char1 == "v"):
-            setPin(letV)
+            setPin([1, 1, 1, 0, 0, 1])
         if (char1 == "W"
             or char1 == "w"):
-            setPin(letW)
+            setPin([0, 1, 0, 1, 1, 1])
         if (char1 == "X"
             or char1 == "x"):
-            setPin(letX)
+            setPin([1, 0, 1, 1, 0, 1])
         if (char1 == "Y"
             or char1 == "y"):
-            setPin(letY)
+            setPin([1, 0, 1, 1, 1, 1])
         if (char1 == "Z"
             or char1 == "z"):
-            setPin(letZ)
+            setPin([1, 0, 1, 0, 1, 1])
         if (char1 == "#"):
-            setPin(letPound)
+            setPin([0, 0, 1, 1, 1, 1])
         if (char1 == "."):
-            setPin(letPer)
+            setPin([0, 1, 0, 0, 1, 1])
         if (char1 == ","):
-            setPin(letComm)
+            setPin([0, 1, 0, 0, 0, 0])
         if (char1 == "?"):
-            setPin(letQuest)
+            setPin([0, 1, 1, 0, 0, 1])
         if (char1 == "!"):
-            setPin(letExec)
+            setPin([0, 1, 1, 0, 1, 0])
         if (char1 == ";"):
-            setPin(letSemi)# command = 'c1%s' % char1# arduino.write(command)# write each character of the string onto the serial port
+            setPin([0, 1, 1, 0, 0, 0])# command = 'c1%s' % char1# arduino.write(command)# write each character of the string onto the serial port
         time.sleep(5)
         inputText = inputText[1:]
-        setPin(reset)
+        setPin([1, 1, 1, 1, 1, 1])
         time.sleep(1.5)
 ###############################################################################
 # Main
@@ -253,28 +223,24 @@ def main():
 
     # Wait for the webcam to finish initializeing
     waitForCamera()
-
-    # Initialize camera
-    cam = cv2.VideoCapture(0)
-    cam.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH, CAMERA_WIDTH)
-    cam.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT, CAMERA_HEIGHT)
-    camWidth = cam.get(cv2.cv.CV_CAP_PROP_FRAME_WIDTH)
-    camHeight = cam.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT)
-    if VERBOSE:
-        print "Camera initialized: (" + str(camWidth) + ", " + \
-            str(camHeight) + ")"
-
     # Main loop
     while True:
-
+        cam = cv2.VideoCapture(0)
+        cam.set(cv2.cv.CV_CAP_PROP_FRAME_WIDTH, CAMERA_WIDTH)
+        cam.set(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT, CAMERA_HEIGHT)
+        camWidth = cam.get(cv2.cv.CV_CAP_PROP_FRAME_WIDTH)
+        camHeight = cam.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT)
+        if VERBOSE:
+            print "Camera initialized: (" + str(camWidth) + ", " + \
+                str(camHeight) + ")  Image will be taken in 5 seconds"
         # Get image from camera
         time.sleep(5)
         ret_val, frame = cam.read()
         image = "testImage.jpg"
         cv2.imwrite(image,frame)
+        cam.release()
         # Show image window (if debugging)
-        print "running tesseract..."
-        ouptut = runTesseract(image)
-        #ouptutLetter(output)
+        output = runTesseract(image)
+        ouptutLetter(output)
 if __name__ == "__main__":
     main()

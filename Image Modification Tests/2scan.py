@@ -8,7 +8,7 @@ import time
 # add image here.
 # We can also use laptop's webcam if the resolution is good enough to capture
 # readable document content
-image = cv2.imread('unnamed4.jpg')
+image = cv2.imread('unnamed5.jpg')
 
 # resize image so it can be processed
 # choose optimal dimensions such that important content is not lost

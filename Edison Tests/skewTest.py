@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 from matplotlib import pyplot as plt
 
-img = cv2.imread('unnamed.jpg', cv2.IMREAD_GRAYSCALE)
+img = cv2.imread('dst.jpg', cv2.IMREAD_GRAYSCALE)
 
 def compute_skew(image):
     # image = cv2.bitwise_not(image)
@@ -37,5 +37,6 @@ deskewed_image = deskew(img.copy(), compute_skew(img))
 cv2.namedWindow('ouptut.jpg', cv2.WINDOW_NORMAL)
 cv2.imshow('output.jpg', deskewed_image)
 cv2.imshow('original.jpg',img)
+cv2.imwrite('deskewed_image.jpg',deskewed_image)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
