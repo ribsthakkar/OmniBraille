@@ -2,7 +2,7 @@ import cv2
 from PIL import Image
 import skewTest as skew
 
-inputPic = "testPic.jpg"
+inputPic = "testImage.jpg"
 image_file = cv2.imread(inputPic)
 orig = image_file.copy()
 print "denoising color"

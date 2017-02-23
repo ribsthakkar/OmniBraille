@@ -44,7 +44,7 @@ letE = [1, 0, 0, 0, 1, 0]
 letF = [1, 1, 0, 1, 0, 0]
 letG = [1, 1, 0, 1, 1, 0]
 letH = [1, 1, 0, 0, 1, 0]
-letI = [0, 1, 0, 0, 1, 0]
+letI = [0, 1, 0, 1, 0, 0]
 letJ = [0, 1, 0, 1, 1, 0]
 letK = [1, 0, 1, 0, 0, 0]
 letL = [1, 1, 1, 0, 0, 0]
@@ -90,7 +90,7 @@ def setPin(letPin):
     sol4.write(abs(1 - letPin[3]))
     sol5.write(abs(1 - letPin[4]))
     sol6.write(abs(1 - letPin[5]))
-image_file = 'unnamed.jpg'
+image_file = 'testImage.jpg'
 im = Image.open(image_file)# opening image file
 im = im.save('test.tif')
 im = Image.open('test.tif')# change image format

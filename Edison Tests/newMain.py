@@ -111,11 +111,15 @@ def main():
                 str(camHeight) + ")  Image will be taken in 5 seconds"
         # Get image from camera
         time.sleep(5)
+        print "taking image....."
         ret_val, frame = cam.read()
+        print "saving image...."
         image = "testImage.jpg"
         cv2.imwrite(image,frame)
         cam.release()
         # Show image window (if debugging)
+        print "preparing to run image modification"
+        time.sleep(3)
         text = runTesseract(image)
         print "=====output=======\n"
         print text
